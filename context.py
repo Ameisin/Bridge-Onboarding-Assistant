@@ -50,6 +50,3 @@ def select_faq(json: list[dict], query: str, max_results: int = 1) -> list[dict]
 
 def select_docs_by_id(json: list[dict], id: str) -> dict | None:
     return next((e for e in json if e.get("id") == id), None)
-
-
-print(select_faq(read_faq(Path(DATA_DIR / "faq_onboarding.json")), "beneficios y seguro"))
