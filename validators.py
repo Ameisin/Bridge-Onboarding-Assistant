@@ -1,6 +1,6 @@
+import re
 
 import config as conf
-from typing import Optional
 
 def has_suspicious_patterns(keyword: str) -> dict[str, object]:
     """
@@ -9,8 +9,13 @@ def has_suspicious_patterns(keyword: str) -> dict[str, object]:
       - is_malicious: bool
       - matches: lista de patrones que hicieron match
     """
+    if not isinstance(keyword, str) or not keyword.strip():
+        return {
+            "is_malicious": False,
+            "matches": []
+        }
 
-    normalized = keyword.lower()
+    normalized = keyword.strip().casefold()
 
     matches = []
     for pattern in conf.COMPILED_SUSPICIOUS_PATTERNS:
@@ -18,27 +23,28 @@ def has_suspicious_patterns(keyword: str) -> dict[str, object]:
             matches.append(pattern.pattern)
 
     return {
-        "is_malicious": len(matches) > 0,
+        "is_malicious": bool(matches),
         "matches": matches
     }
 
-def is_valid_keyword(keyword: str, department: str) -> bool:
+
+def is_valid_prompt(phrase: str, department: str) -> dict[str, object]:
     """
-    Verificar si una keyword es válida para un departamento.
-    
-    Args:
-        keyword (str): La keyword a verificar
-        department (str): El departamento donde se verifica
-        
-    Returns:
-        bool: True si la keyword es válida para el departamento, False en caso contrario
-            También devuelve False si contiene patrones sospechosos.
+    Verificar si una frase es válida para un departamento.
     """
-    # Primero comprobar patrones sospechosos
-    suspicious_type = has_suspicious_patterns(keyword)
-    if suspicious_type:
-        print(f"[ALERTA] Patrón sospechoso detectado ('{suspicious_type}') en keyword: {keyword}")
-        return False
-    
-    valid_keywords = conf.get_department_keywords(department)
-    return keyword.lower() in [kw.lower() for kw in valid_keywords]
+    if not isinstance(phrase, str) or not phrase.strip():
+        return {"is_valid": False, "suspicious": None}
+
+    suspicious = has_suspicious_patterns(phrase)
+    if suspicious["is_malicious"]:
+        return {"is_valid": False, "suspicious": suspicious}
+
+    normalized_phrase = re.sub(r"\s+", " ", phrase.strip()).casefold()
+    valid_keywords = {kw.casefold() for kw in conf.get_department_keywords(department)}
+
+    for keyword in valid_keywords:
+        pattern = re.compile(rf"(?<!\w){re.escape(keyword)}(?!\w)")
+        if pattern.search(normalized_phrase):
+            return {"is_valid": True, "suspicious": None}
+
+    return {"is_valid": False, "suspicious": None}
