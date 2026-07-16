@@ -1,4 +1,5 @@
 import json
+import re
 from pathlib import Path
 
 DATA_DIR = Path(__file__).parent / "data"
@@ -47,6 +48,31 @@ def select_faq(json: list[dict], query: str, max_results: int = 1) -> list[dict]
 
     score.sort(key=lambda x: x[0], reverse=True)
     return [e for _, e in score[:max_results]]
+
+def select_docs(json: list[dict], query: str, max_results: int = 1) -> list[dict]:
+    q = (query or "").lower()
+    score: list[tuple[int, dict]] = []
+
+    for entry in json:
+        s = 0
+        for tag in entry.get("tags", []):
+            if tag.lower() in q:
+                s += 2
+        if q in entry.get("titulo", "").lower():
+            s += 4
+        if q in entry.get("cuerpo", "").lower():
+            s += 2
+
+        for token in re.findall(r"[a-záéíóúñ]+", q):
+            if token and token in entry.get("cuerpo", "").lower():
+                s += 1
+
+        if s > 0:
+            score.append((s, entry))
+
+    score.sort(key=lambda x: x[0], reverse=True)
+    return [e for _, e in score[:max_results]]
+
 
 def select_docs_by_id(json: list[dict], id: str) -> dict | None:
     return next((e for e in json if e.get("id") == id), None)

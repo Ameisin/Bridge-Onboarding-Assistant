@@ -98,6 +98,8 @@ ENGINEERING_KEYWORDS = (
 MANAGER_KEYWORDS = (
     "gestión del equipo",
     "priorización de tareas",
+    "priorizar",
+    "tareas",
     "reuniones 1:1",
     "objetivos personales",
     "objetivos de equipo",
@@ -105,6 +107,7 @@ MANAGER_KEYWORDS = (
     "coaching",
     "liderazgo",
     "planificación",
+    "planificar",
     "asignación de recursos",
     "evaluación de progreso",
     "desarrollo profesional",
@@ -115,7 +118,13 @@ MANAGER_KEYWORDS = (
     "decisiones operativas",
     "conflictos laborales",
     "toma de decisiones",
-    "comunicación efectiva"
+    "comunicación efectiva",
+    "sprint",
+    "equipo",
+    "manager",
+    "supervisor",
+    "rol",
+    "responsabilidades"
 )
 
 PROMPT_INJECTION_PATTERNS = [
@@ -213,6 +222,52 @@ DEPARTMENT_KEYWORDS = {
     "people_culture": PEOPLE_CULTURE_KEYWORDS,
     "engineering": ENGINEERING_KEYWORDS,
     "manager": MANAGER_KEYWORDS
+}
+
+CONTEXT_HINTS = {
+    "engineering": (
+        "github",
+        "repositorio",
+        "repositorios",
+        "repo",
+        "repos",
+        "slack",
+        "portatil",
+        "it",
+        "infraestructura",
+        "sistema",
+        "sistemas",
+        "acceso",
+        "apis",
+        "código",
+        "desarrollo"
+    ),
+    "people_culture": (
+        "vacaciones",
+        "beneficios",
+        "baja",
+        "conducta",
+        "acoso",
+        "buddy",
+        "política",
+        "políticas",
+        "bienestar",
+        "rrhh",
+        "salario",
+        "compliance"
+    ),
+    "manager": (
+        "manager",
+        "supervisor",
+        "equipo",
+        "tareas",
+        "priorizar",
+        "sprint",
+        "rol",
+        "responsabilidades",
+        "objetivos",
+        "planificación"
+    ),
 }
 
 
