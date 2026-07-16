@@ -52,5 +52,25 @@ def answer_query(query: str) -> dict[str, object]:
 
 
 if __name__ == "__main__":
-    sample = "¿Cómo obtengo acceso a GitHub?"
-    print(answer_query(sample))
+    print("Asistente de onboarding de Bridge SA")
+    print("Escribe tus preguntas sobre onboarding. Escribe 'salir' para terminar.\n")
+
+    while True:
+        user_input = input("Tu consulta: ").strip()
+        if not user_input:
+            continue
+        if user_input.lower() in {"salir", "exit", "quit"}:
+            print("Hasta pronto.")
+            break
+
+        result = answer_query(user_input)
+        if result["is_valid"]:
+            print(f"\nDepartamento: {result['department']}")
+            print(f"Fuente: {result['source']}")
+            print("Respuesta:")
+            print(result["answer"])
+        else:
+            print("Respuesta:")
+            print(result["answer"])
+
+        print("\n" + "-" * 50 + "\n")

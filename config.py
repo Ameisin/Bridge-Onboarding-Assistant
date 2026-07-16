@@ -233,6 +233,7 @@ CONTEXT_HINTS = {
         "repos",
         "slack",
         "portatil",
+        "portátil",
         "it",
         "infraestructura",
         "sistema",

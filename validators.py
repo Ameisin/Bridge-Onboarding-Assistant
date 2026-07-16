@@ -54,13 +54,14 @@ def derive_department(phrase: str) -> dict[str, object]:
     normalized_phrase = _normalize_phrase(phrase)
 
     for department, hints in conf.CONTEXT_HINTS.items():
-        if any(hint in normalized_phrase for hint in hints):
+        matched_hints = [hint for hint in hints if hint in normalized_phrase]
+        if matched_hints:
             return {
                 "is_valid": True,
                 "department": department,
                 "department_label": DEPARTMENT_LABELS[department],
                 "suspicious": None,
-                "matches": list(hints),
+                "matches": matched_hints,
             }
 
     best_department: str | None = None
