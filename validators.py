@@ -2,6 +2,7 @@ import unicodedata
 
 MAX_INPUT_CHARS = 2_000
 PATRONES_SOSPECHOSOS = (
+    # Inyección / jailbreak
     "ignora instrucciones",
     "ignore previous",
     "olvida que eres",
@@ -11,11 +12,28 @@ PATRONES_SOSPECHOSOS = (
     "system:",
     "jailbreak",
     "olvida que",
+
+    # Datos sensibles (salariales)
     "cuanto gana",
+    "cuanto cobra",
+    "sueldo",
+    "salario",
+    "nomina",
+    "bonus",
+
+    # Fuera de dominio
     "curso externo",
     "ejercicio",
-    "ejercicios"
+    "programa formativo",
+    "estoy estudiando",
+    "soy participante de",
+    "ayuda con mi tarea",
+    "modulo"
 )
+
+
+PALABRAS_DINERO = ("gana", "cobra", "sueldo", "salario", "nomina", "bonus")
+PALABRAS_PERSONA = ("mi", "tu", "su", "compañero", "compañera", "manager")
 
 def quita_acentos(texto:str) -> str:
     forma_nfd = unicodedata.normalize("NFD", texto)
