@@ -32,9 +32,6 @@ PATRONES_SOSPECHOSOS = (
 )
 
 
-PALABRAS_DINERO = ("gana", "cobra", "sueldo", "salario", "nomina", "bonus")
-PALABRAS_PERSONA = ("mi", "tu", "su", "compañero", "compañera", "manager")
-
 def quita_acentos(texto:str) -> str:
     forma_nfd = unicodedata.normalize("NFD", texto)
     return "".join(c for c in forma_nfd if unicodedata.category(c) != "Mn")
