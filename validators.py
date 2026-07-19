@@ -1,5 +1,6 @@
 import unicodedata
 
+
 MAX_INPUT_CHARS = 2_000
 PATRONES_SOSPECHOSOS = (
     # Inyección / jailbreak
