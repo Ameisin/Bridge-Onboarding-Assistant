@@ -13,6 +13,8 @@ PATRONES_SOSPECHOSOS = (
     "system:",
     "jailbreak",
     "olvida que",
+    "a partir de ahora eres",
+    "contraseña",
 
     # Datos sensibles (salariales)
     "cuanto gana",
@@ -21,6 +23,9 @@ PATRONES_SOSPECHOSOS = (
     "salario",
     "nomina",
     "bonus",
+    "cobra",
+    "cobran",
+    "cobrar",
 
     # Fuera de dominio
     "curso externo",
