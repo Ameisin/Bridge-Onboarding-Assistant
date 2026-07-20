@@ -7,7 +7,7 @@ from context import (
     select_faq,
     select_docs,
 )
-from config import INOF_EMPRESA
+from config import INFO_EMPRESA
 
 # from validators import validacion_input
 # validacion = validacion_input("¿Cómo accedo a GitHub?")
@@ -25,7 +25,7 @@ def demo_contexto(query: str, max_faq: int = 3, max_docs: int = 3) -> dict:
     faq = read_faq(faq_path) if faq_path.exists() else []
     docs = read_docs(docs_path) if docs_path.exists() else []
     empleados = read_empleados(empleados_path) if empleados_path.exists() else []
-    empresa = read_empresa(empresa_path) if empresa_path.exists() else INOF_EMPRESA
+    empresa = read_empresa(empresa_path) if empresa_path.exists() else INFO_EMPRESA
 
     faq_matches = select_faq(faq, query, max_results=max_faq)
     docs_matches = select_docs(docs, query, max_results=max_docs)

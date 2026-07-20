@@ -2,7 +2,7 @@ import re
 
 
 # Ficha rápida de la empresa (ficticia)
-INOF_EMPRESA = {
+INFO_EMPRESA = {
     "sector": "formación tecnológica y producto digital",
     "sede": "Madrid",
     "modelo": "remoto-first",
