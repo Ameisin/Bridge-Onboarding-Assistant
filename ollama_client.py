@@ -2,11 +2,10 @@
 import os
 import time
 from dataclasses import dataclass
-from ollama_config import configurar_ollama_token
-from ollama import Client, chat
+from ollama_config import obtener_config_ollama
+from ollama import Client
 
-from config import TEMPERATURE_JSON, TEMPERATURE_TEXT
-from ollama_config import configurar_ollama_token, obtener_config_ollama
+from config import TEMPERATURE_JSON
 
 
 
