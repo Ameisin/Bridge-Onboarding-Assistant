@@ -32,6 +32,8 @@ class ChatAssistant:
             history=history,
         )
 
+        if not validacion_input(question):
+            return "La consulta no es válida."
         answer = self.llm.generate(prompt)
 
         self.memory.add(
@@ -46,8 +48,5 @@ class ChatAssistant:
             answer,
         )
 
-       
-        # máximo 4 turnos
-        self.history = self.history[-4:]
 
         return answer

@@ -126,7 +126,14 @@ No escribas texto antes ni después del JSON.
 
 Utiliza únicamente la documentación proporcionada.
 
-El checklist debe adaptarse al día de onboarding y evitar repetir tareas de días anteriores.
+El checklist debe adaptarse al día de onboarding y evitar repetir tareas de días anteriores. 
+IMPORTANTE:
+
+Responde únicamente teniendo en cuenta el día de onboarding indicado.
+
+Si el usuario está en el día 3, no propongas tareas propias del día 1.
+
+Si el usuario está en el día 5, no repitas tareas de días anteriores salvo que sean necesarias.
 
 Objetivo del día:
 {DAY_CONTEXT.get(onboarding_day)}

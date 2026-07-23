@@ -90,9 +90,6 @@ def main():
             onboarding_day=2,
         )
     )
-load_dotenv()
-
-print(os.getenv("GEMINI_API_KEY"))
 
 
 if __name__ == "__main__":
