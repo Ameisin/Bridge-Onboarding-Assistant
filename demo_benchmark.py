@@ -190,13 +190,16 @@ def guarda_csv(results, filename='output/benchmark_resultados.csv'):
     if not results:
         print("No se han generado resultados CSV para guardar")
         return
-    campos_resultados = ['caso_id', 'modelo_provider', 'modelo_name', 'pregunta', 'respuesta',
-                  'latencia_segundos', 'tokens_usados', 'fidelidad',
-                  'relevancia', 'tono', 'seguridad']
+    campos_resultados = [
+        'caso_id', 'modelo_provider', 'modelo_name', 'pregunta', 'respuesta',
+        'latencia_segundos', 'tokens_usados', 'fidelidad',
+        'relevancia', 'tono', 'seguridad'
+    ]
     with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=campos_resultados)
         print("caso,proveedor,modelo,pregunta,respuesta,latencia(segs),tokens,fidelidad,relevancia,tono,seguridad")
         for result in results:
+            writer.writeheader()
             writer.writerow(result)
     print(f"Resultados obtenidos guardados en: {filename}")
 def create_matriz_decision(models_config):
