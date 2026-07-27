@@ -27,5 +27,3 @@ class ChecklistAssistant:
         )
 
         return self.llm.generate(prompt)
-
-        return self.llm.generate(prompt)

@@ -1,6 +1,7 @@
 from src.context_selector import select_documents
 from src.prompts import build_chat_prompt
 from src.conversation_memory import ConversationMemory
+from validators import validacion_input
 
 class ChatAssistant:
 
@@ -32,7 +33,9 @@ class ChatAssistant:
             history=history,
         )
 
-        if not validacion_input(question):
+        
+        resultado = validacion_input(question)
+        if not resultado["ok"]:
             return "La consulta no es válida."
         answer = self.llm.generate(prompt)
 
