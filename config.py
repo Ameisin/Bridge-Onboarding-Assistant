@@ -3,9 +3,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-# Variable global para controlar estado de sistema ocupado
-# SYS_BUSY: bool = False
-
 BASE_DIR = Path(__file__).resolve().parent
 OUTPUT_DIR = BASE_DIR / "output"
 ENTREGABLES_DIR = BASE_DIR / "entregables"
@@ -15,25 +12,22 @@ PREGUNTAS_PATH = DATA_DIR / "preguntas_benchmark.json"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 ENTREGABLES_DIR.mkdir(parents=True, exist_ok=True)
 TEMPERATURE_JSON = 0.0
-TEMPERATURE_TEXTO = 0.1
 
-# Parámetros del benchmark
-MAX_TOKENS_INPUT = 8_000
-MAX_CHARS_MENSAJE = 2_000
-MIN_CHARS_MENSAJE = 10
-BENCHMARK_TEMPERATURE = 0.1
-MIN_PREGUNTAS = 4
-BENCHMARK_MIN_PREGUNTAS = 6
-
-# Modificamos los modelos para usar Ollama en lugar de Gemini
-BENCHMARK_MODELS = [
-    {"provider": "ollama", "model": "qwen3.5:9b"},
-    {"provider": "gemini", "model": "gemini-3.5-flash-lite"},
+MODEL_CONFIGS = {
+    "gemini": {
+        "enabled": True,
+        "label": "Gemini",
+    },
+    "ollama": {
+        "enabled": True,
+        "label": "Ollama",
+    },
+}
+BENCHMARK_MODELS = [     
+    {"provider": "ollama", "model": "granite4.1:8b"},
     {"provider": "ollama", "model": "gpt-oss-safeguard:20b"},
-    {"provider": "gemini", "model": "gemini-3.5-flash"},
-    {"provider": "huggingface", "model": "openai/gpt-oss-20b"},
+    {"provider": "ollama", "model": "llama-guard3:8b"},
 ]
-
 
 BENCHMARK_CASES = [
     {

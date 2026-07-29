@@ -1,43 +1,95 @@
-# main.py
-from __future__ import annotations
+from src.context_selector import load_documents
+from src.employee_service import load_employees, get_employee
+from src.llm_client import LLMClient
+
+from src.chat import ChatAssistant
+from src.checklist import ChecklistAssistant
+
+from dotenv import load_dotenv
 import os
-import argparse
 
-from benchmark import BenchmarkLauncher
-# from txtfx import tstream
+def main():
 
+    # Cargar datos
+    documents = load_documents("data/onboarding_docs.json")
+    employees = load_employees("data/empleados_demo.json")
 
+    # Crear cliente LLMp
+    llm = LLMClient()
+    # Crear asistentes
+    chat = ChatAssistant(llm, documents)
+    checklist = ChecklistAssistant(llm, documents)
 
-def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--bench",
-        action="store_true",
-        help="Ejecutar el benchmark de modelos",
+    # ==================================================
+    # DEMO 1
+    # Conversación (Dev Junior)
+    # ==================================================
+
+    print("=" * 80)
+    print("DEMO 1 - CHAT")
+    print("=" * 80)
+
+    employee = get_employee("emp_01", employees)
+
+    answer = chat.chat(
+        employee=employee,
+        question="¿Cómo consigo acceso a GitHub?",
+        onboarding_day=1,
     )
-    parser.set_defaults(mode="manual")
-    return parser
 
-def resolve_mode(args: argparse.Namespace) -> str:
-    if args.bench:
-        return "bench"
+    print(answer)
 
-def main() -> None:
-    os.system("cls" if os.name == "nt" else "clear")
-    parser = build_parser()
-    args = parser.parse_args()
-    mode = resolve_mode(args)
-    
+    # ==================================================
+    # DEMO 2
+    # Checklist JSON
+    # ==================================================
 
+    print("\n")
+    print("=" * 80)
+    print("DEMO 2 - CHECKLIST")
+    print("=" * 80)
 
-    if mode == "bench":
-        try:
-            BenchmarkLauncher().launch()
-        except ImportError as exc:
-            print(f"Error al ejecutar el benchmark: {exc}")
-            print("El benchmark no está instalado o configurado correctamente.")
-        return
+    checklist_json = checklist.generate(
+        employee=employee,
+        onboarding_day=1,
+    )
 
+    print(checklist_json)
+
+    # ==================================================
+    # DEMO 3
+    # Comparación de perfiles
+    # ==================================================
+
+    print("\n")
+    print("=" * 80)
+    print("DEMO 3 - COMPARACIÓN DE PERFILES")
+    print("=" * 80)
+
+    commercial = get_employee("emp_02", employees)
+    remote = get_employee("emp_03", employees)
+
+    question = "¿Cómo funciona la política de trabajo remoto?"
+
+    print("\n--- Comercial ---\n")
+
+    print(
+        chat.chat(
+            employee=commercial,
+            question=question,
+            onboarding_day=2,
+        )
+    )
+
+    print("\n--- Remoto UE ---\n")
+
+    print(
+        chat.chat(
+            employee=remote,
+            question=question,
+            onboarding_day=2,
+        )
+    )
 
 
 if __name__ == "__main__":
