@@ -27,11 +27,11 @@ BENCHMARK_MIN_PREGUNTAS = 6
 
 # Modificamos los modelos para usar Ollama en lugar de Gemini
 BENCHMARK_MODELS = [
-    {"provider": "ollama", "model": "qwen3.5:9b"},
     {"provider": "gemini", "model": "gemini-3.5-flash-lite"},
     {"provider": "ollama", "model": "gpt-oss-safeguard:20b"},
-    {"provider": "gemini", "model": "gemini-3.5-flash"},
-    {"provider": "huggingface", "model": "openai/gpt-oss-20b"},
+    {"provider": "ollama", "model": "gemma4:12b"},
+    {"provider": "huggingface", "model": "openai/gpt-oss-safeguard-20b"},
+    {"provider": "huggingface", "model": "ggml-org/gemma-4-12B-GGUF"},
 ]
 
 
