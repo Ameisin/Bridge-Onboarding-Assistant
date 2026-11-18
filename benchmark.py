@@ -1,5 +1,7 @@
 # benchmark.py
 """Funciones principales del benchmark de modelos"""
+from __future__ import annotations
+
 import os
 import time
 import json
@@ -643,19 +645,11 @@ class BenchmarkLauncher:
                 nombre_archivo = self.runner.guardar_csv(resultados)
                 print(f"√ CSV: output/{nombre_archivo}.csv")
                 print(f"√ Informe: output/{nombre_archivo}.md")
-                try:
-                    create_matriz_decision(BENCHMARK_MODELS)
-                    create_recomendacion(BENCHMARK_MODELS)
-                    print("\n✓ → Benchmark completado exitosamente")
-                    print(f"   - {len(resultados)} resultados procesados")
-                    print(f"   - Archivos generados en:\n")
-                    print("     → output/benchmark_resultados.csv")
-                    print("     → entregables/matriz_decision.md")
-                    print("     → entregables/recomendacion.md")
-                except Exception as e:
-                    print(f"⨉ → Error ejecutando benchmark: {e}")
-                    import traceback
-                    traceback.print_exc()
+                print("\n✓ → Benchmark completado exitosamente")
+                print(f"   - {len(resultados)} resultados procesados")
+                print("   - Resultados en output/ (CSV + informes en Markdown)")
+                print("   - Los entregables (entregables/matriz_decision.md y recomendacion.md)")
+                print("     los redacta el equipo a partir de estos resultados; el benchmark no los sobrescribe.")
                 
             else:
                 print("⨉ No se obtuvieron resultados")

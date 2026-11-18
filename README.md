@@ -1,6 +1,119 @@
 # Bridge-Onboarding-Assistant
 Asistente para onboarding de nuevos empleados
 
+Copiloto para los empleados nuevos de **Bridge SA** (empresa ficticia del reto) durante sus primeros días. Responde dudas con la documentación interna, genera el checklist del día en JSON y sabe cuándo derivar a People o IT. Se adapta al perfil del empleado (dev junior, comercial, remoto UE) y al día de onboarding (1–5).
+
+## Índice
+
+- [Instalación y configuración](#instalación-y-configuración)
+- [Ejecución de las demos](#ejecución-de-las-demos)
+- [Demo 3: mismo mensaje, perfiles distintos](#demo-3-mismo-mensaje-perfiles-distintos)
+- [Estrategia de selección de contexto](#estrategia-de-selección-de-contexto)
+- [Robustez](#robustez)
+- [Benchmark de modelos](#benchmark-de-modelos-para-onboarding-assistant)
+- [Entregables](#entregables)
+
+## Instalación y configuración
+
+Requisitos: Python 3.10 o superior (también funciona con 3.9) y una clave de Gemini ([Google AI Studio](https://aistudio.google.com/)). [Ollama](https://ollama.com/) solo hace falta para ejecutar el benchmark con modelos locales.
+
+```bash
+git clone https://github.com/Ameisin/Bridge-Onboarding-Assistant.git
+cd Bridge-Onboarding-Assistant
+
+python -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+
+cp .env.example .env             # y rellenar las claves
+```
+
+Variables de `.env` (nunca se suben al repositorio, `.env` está en `.gitignore`):
+
+| Variable | Para qué se usa |
+|---|---|
+| `GEMINI_API_KEY` | **Obligatoria.** Demos del asistente, demo de robustez y benchmark con modelos Gemini |
+| `OPENAI_API_KEY` | Benchmark con OpenAI (opcional) |
+| `HF_TOKEN` | Benchmark con Hugging Face (opcional) |
+| `OLLAMA_HOST`, `OLLAMA_TOKEN` | Benchmark con un servidor Ollama remoto (opcional) |
+
+### Modelos que usamos
+
+| Uso | Proveedor | Modelo | Dónde se configura |
+|---|---|---|---|
+| Demos del asistente (chat y checklist) | Gemini | `gemini-3.5-flash-lite`, temperatura 0.2 | `src/llm_client.py` |
+| Demo vulnerable vs seguro | Gemini | `gemini-2.5-flash-lite` | `demo_robustez.py` |
+| Benchmark | Ollama, Gemini, Hugging Face | ver `BENCHMARK_MODELS` | `config.py` |
+
+Las demos usan `gemini-3.5-flash-lite`, que es el modelo que recomienda el benchmark para el chat en tiempo real (ver [entregables/recomendacion.md](entregables/recomendacion.md)).
+
+## Ejecución de las demos
+
+```bash
+python main.py            # las 3 demos del asistente
+python main.py --bench    # benchmark de modelos (genera los resultados en output/)
+python demo_robustez.py   # demo vulnerable vs seguro con el mismo input malicioso
+```
+
+`python main.py` ejecuta:
+
+1. **Demo 1: conversación de un turno.** Laura (`emp_01`, dev junior, día 1) pregunta cómo conseguir acceso a GitHub.
+2. **Demo 2: checklist JSON del día 1** para Laura. El prompt (`build_checklist_prompt()` en `src/prompts.py`) exige el esquema del enunciado: `empleado_id`, `dia`, `tareas[]` (`id`, `titulo`, `completada`, `fuente_doc`) y `mensaje_resumen`.
+3. **Demo 3: mismo mensaje con dos perfiles distintos** (ver la sección siguiente).
+
+## Demo 3: mismo mensaje, perfiles distintos
+
+Los dos empleados hacen la misma pregunta: *«¿Cómo funciona la política de trabajo remoto?»* (día 2).
+
+| | Pablo Navarro (`emp_02`) | Sofia Costa (`emp_03`) |
+|---|---|---|
+| Perfil | comercial | remoto UE |
+| Departamento | sales | engineering |
+| Modalidad / ubicación | híbrido, Madrid | remoto, Lisboa |
+| Documentos seleccionados | `doc_rrhh_02`, `doc_sales_01`, `doc_bienvenida_01` | `doc_rrhh_02`, `doc_eng_01`, `doc_bienvenida_01` |
+
+Las respuestas cambian por dos motivos:
+
+- **Contexto distinto:** el selector prioriza los documentos del departamento de cada empleado, así que cada uno recibe la guía de su área (Sales o Engineering).
+- **Prompt distinto:** el bloque del empleado incluye perfil, modalidad y día de onboarding. `doc_rrhh_02` contiene las dos reglas, y el perfil le indica al modelo cuál aplica: para Pablo (modalidad híbrida), la presencia de 2 días por semana en el coworking de Madrid; para Sofia (perfil remoto UE), la regla de los 14 días trabajando desde otro país, que requiere aprobación de RRHH.
+
+## Estrategia de selección de contexto
+
+No enviamos todos los documentos en cada llamada. `src/context_selector.py` puntúa cada documento de `data/onboarding_docs.json` con respecto a la pregunta y al departamento del empleado:
+
+| Señal | Puntos |
+|---|---|
+| Documento general de `people` o `it` | +2 |
+| Documento del mismo departamento que el empleado | +4 |
+| Palabra de la pregunta que coincide con un tag | +5 por palabra |
+| Palabra de la pregunta en el título | +3 por palabra |
+| Palabra de la pregunta en el cuerpo | +1 por palabra |
+
+Antes de comparar, la pregunta se pasa a minúsculas y se quitan las palabras vacías (*stopwords*). Se envían al modelo solo los **3 documentos con mayor puntuación** (los que tienen puntuación 0 se descartan).
+
+Además:
+
+- **Historial acotado:** `src/conversation_memory.py` guarda como máximo 4 turnos (8 mensajes) por empleado, y en el prompt se incluyen solo los últimos 4 mensajes.
+- **Día de onboarding:** `DAY_CONTEXT` en `src/prompts.py` añade al prompt el objetivo de cada día (1–5), tanto en el chat como en el checklist.
+- **Delimitadores claros:** el prompt separa en bloques EMPLEADO, DOCUMENTACIÓN, HISTORIAL y PREGUNTA.
+
+Con esto, un prompt del chat ocupa unos 500 tokens sin historial y unos 800 con historial.
+
+## Robustez
+
+Antes de llamar al modelo, cada pregunta pasa por `validacion_input()` (`validators.py`). Esta función rechaza los mensajes vacíos, los demasiado largos y los que contienen patrones de inyección, preguntas salariales o temas fuera del dominio. Si la validación falla, el asistente responde sin llamar al modelo (**fail-closed**).
+
+La comparativa vulnerable vs seguro (mismo input malicioso con y sin validación) y los 5 casos trampa propios (`data/casos_trampa.json`) están documentados en **[ROBUSTEZ.md](ROBUSTEZ.md)**.
+
+## Entregables
+
+- [entregables/matriz_decision.md](entregables/matriz_decision.md): matriz por caso del benchmark, con fidelidad y tono según la rúbrica.
+- [entregables/recomendacion.md](entregables/recomendacion.md): modelo recomendado, trade-off, impacto de duplicar el tráfico y riesgos.
+- [entregables/rubrica_benchmark.md](entregables/rubrica_benchmark.md): rúbrica de evaluación (escala 1–3).
+- [output/](output/): CSV y reports del benchmark.
+
+---
+
 
 ## Benchmark de modelos para Onboarding Assistant
 
@@ -71,7 +184,7 @@ Ese comando dispara el flujo completo y hace que el sistema:
 3. ejecute cada modelo contra las preguntas,
 4. capture las métricas,
 5. genere los informes asociados,
-6. y deje los entregables listos para presentar.
+6. y deje en `output/` los resultados (CSV e informes en Markdown) a partir de los cuales el equipo redacta los entregables. El benchmark no sobrescribe `entregables/`.
 
 ---
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 DAY_CONTEXT = {
     1: (
         "El empleado acaba de incorporarse. "
